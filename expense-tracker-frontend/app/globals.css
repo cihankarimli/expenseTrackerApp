@@ -1,0 +1,84 @@
+@import "tailwindcss";
+@import "react-datepicker/dist/react-datepicker.css";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Global dark mode defaults */
+
+html,
+body,
+#__next {
+  height: 100%;
+  background: linear-gradient(180deg, #0f1724 0%, #0b1220 100%);
+  color: #e5e7eb;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Inputs & selects default */
+input,
+select,
+textarea,
+button {
+  color: #e5e7eb;
+  background-color: transparent;
+}
+
+/* react-datepicker dark tweaks (basic) */
+.react-datepicker {
+  background: #0f1724;
+  color: #e5e7eb;
+  border: 1px solid #263246;
+}
+
+.react-datepicker__header {
+  background: #0b1220;
+  border-bottom: 1px solid #263246;
+}
+
+.react-datepicker__day-name,
+.react-datepicker__day {
+  color: #cbd5e1;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #2563eb;
+  color: #fff;
+}
+
+/* small utility tweaks */
+.bg-white {
+  background-color: #111827 !important;
+} /* fallback for any remaining bg-white */
+.text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+/* Ensure charts on dark bg have transparent canvas background */
+canvas {
+  background: transparent !important;
+}
