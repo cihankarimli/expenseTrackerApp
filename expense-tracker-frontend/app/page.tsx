@@ -1,97 +1,98 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { fetchWithAuth } from "./utils/auth";
-import PageFade from "./components/PageFade";
-import Card from "./components/Card";
-import DashboardCharts from "./components/DashboardCharts";
-import DateRangePicker from "./components/DateRangePicker";
-import { registerChartTheme } from "./utils/chartTheme";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { setToken } from "./utils/auth";
 
-registerChartTheme();
+export default function AuthPage() {
+  const [isRegister, setIsRegister] = useState(false);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
 
-export default function DashboardPage() {
-  const [amounts, setAmounts] = useState([]);
-  const [profits, setProfits] = useState([]);
-  const [userId, setUserId] = useState("");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const endpoint = isRegister ? "register" : "login";
+      const body = isRegister
+        ? { username, email, password }
+        : { email, password };
 
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/${endpoint}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        }
+      );
 
-  const fetchData = async () => {
-    const userData = await fetchWithAuth(
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/me`
-    );
-
-    setUserId(userData.user.id);
-
-    const amountsData = await fetchWithAuth(
-      `${process.env.NEXT_PUBLIC_API_URL}/amounts/users/${userData.user.id}/amounts`
-    );
-    const profitsData = await fetchWithAuth(
-      `${process.env.NEXT_PUBLIC_API_URL}/profits`
-    );
-
-    setAmounts(amountsData);
-    setProfits(profitsData);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      setToken(data.token);
+      router.push("/dashboard");
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const filterByDate = (data: any[]) =>
-    data.filter((item) => {
-      const d = new Date(item.date);
-      return d >= startDate && d <= endDate;
-    });
-
-  const filteredAmounts = filterByDate(amounts);
-  const filteredProfits = filterByDate(profits);
-
-  const totalExpenses = filteredAmounts
-    .filter((a) => a.type === "expense")
-    .reduce((s, a) => s + a.amount, 0);
-
-  const totalIncome = filteredProfits.reduce((s, p) => s + p.amount, 0);
-
   return (
-    <PageFade>
-      <div className="max-w-6xl mx-auto p-6">
-        <Card className="mb-6">
-          <h1 className="text-2xl font-bold text-white mb-1">Dashboard</h1>
-          <p className="text-gray-400 text-sm">
-            {startDate.toDateString()} — {endDate.toDateString()}
-          </p>
-        </Card>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded shadow-md w-full max-w-md"
+      >
+        <h1 className="text-2xl font-bold mb-6 text-center">
+          {isRegister ? "Register" : "Login"}
+        </h1>
 
-        <DateRangePicker
-          startDate={startDate}
-          endDate={endDate}
-          onChange={(s, e) => {
-            setStartDate(s);
-            setEndDate(e);
-          }}
+        {isRegister && (
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            className="w-full p-2 border border-gray-300 rounded mb-4"
+          />
+        )}
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full p-2 border border-gray-300 rounded mb-4"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="w-full p-2 border border-gray-300 rounded mb-4"
         />
 
-        <Card>
-          <DashboardCharts
-            totalIncome={totalIncome}
-            totalExpenses={totalExpenses}
-          />
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        >
+          {isRegister ? "Register" : "Login"}
+        </button>
 
-          <div className="mt-6 flex flex-col md:flex-row justify-between text-gray-300">
-            <span>
-              Total Expenses:{" "}
-              <strong className="text-red-400">{totalExpenses}₼</strong>
-            </span>
-            <span>
-              Total Income:{" "}
-              <strong className="text-green-400">{totalIncome}₼</strong>
-            </span>
-          </div>
-        </Card>
-      </div>
-    </PageFade>
+        <p className="mt-4 text-center text-gray-600">
+          {isRegister ? "Already have an account?" : "Don't have an account?"}{" "}
+          <button
+            type="button"
+            className="text-blue-600 font-semibold hover:underline"
+            onClick={() => setIsRegister(!isRegister)}
+          >
+            {isRegister ? "Login" : "Register"}
+          </button>
+        </p>
+      </form>
+    </div>
   );
 }
