@@ -68,15 +68,6 @@ export default function AmountForm({ userId, onAdded }: Props) {
             required
             className="w-32 border border-gray-700 bg-gray-950 text-gray-100 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
           />
-
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value as any)}
-            className="w-32 border border-gray-700 bg-gray-950 text-gray-100 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-600"
-          >
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
-          </select>
         </div>
 
         <input

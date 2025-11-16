@@ -1,3 +1,4 @@
+// ...existing code...
 "use client";
 
 import { useState } from "react";
@@ -8,7 +9,7 @@ interface AmountChartsProps {
   amounts: { category: string; amount: number }[];
 }
 
-export default function AmountCharts({ amounts }): AmountChartsProps {
+export default function AmountCharts({ amounts }: AmountChartsProps) {
   const [type, setType] = useState("pie");
 
   const labels = [...new Set(amounts.map((a) => a.category))];
@@ -38,3 +39,4 @@ export default function AmountCharts({ amounts }): AmountChartsProps {
     </div>
   );
 }
+// ...existing code...

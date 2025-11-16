@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchWithAuth } from "../utils/auth";
-import { categoryIcons } from "../utils/categoryIcons";
+import { categoryIcons } from "../utils/CategoryIcons";
 import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 

@@ -15,6 +15,7 @@ export default function DashboardCharts({ totalIncome, totalExpenses }: Dashboar
   const labels = ["Expenses", "Income"];
   const values = [totalExpenses, totalIncome];
 
+
   return (
     <div>
       <div className="flex justify-end mb-3">
@@ -29,7 +30,7 @@ export default function DashboardCharts({ totalIncome, totalExpenses }: Dashboar
       </div>
 
       {type === "pie" ? (
-        <ModernPieChart labels={labels} values={values} centerText="Total" />
+        <ModernPieChart labels={labels} values={values} />
       ) : (
         <ModernBarChart labels={labels} values={values} />
       )}

@@ -1,3 +1,4 @@
+// ...existing code...
 "use client";
 
 import { Bar } from "react-chartjs-2";
@@ -11,7 +12,12 @@ import {
 
 ChartJS.register(BarElement, Tooltip, CategoryScale, LinearScale);
 
-export default function ModernBarChart() {
+interface ModernBarChartProps {
+  labels: string[];
+  values: number[];
+}
+
+export default function ModernBarChart({ labels, values }: ModernBarChartProps) {
   return (
     <Bar
       data={{
@@ -21,9 +27,10 @@ export default function ModernBarChart() {
             data: values,
             borderRadius: 12,
             borderSkipped: false,
-            backgroundColor: (ctx) => {
-              const chart = ctx.chart.ctx;
-              const g = chart.createLinearGradient(0, 0, 0, 200);
+            backgroundColor: (context: any) => {
+              // context.chart.ctx is the CanvasRenderingContext2D
+              const ctx = context.chart.ctx as CanvasRenderingContext2D;
+              const g = ctx.createLinearGradient(0, 0, 0, 200);
               g.addColorStop(0, "rgba(59,130,246,1)");
               g.addColorStop(1, "rgba(59,130,246,0.2)");
               return g;
@@ -56,3 +63,4 @@ export default function ModernBarChart() {
     />
   );
 }
+// ...existing code...
