@@ -9,20 +9,26 @@ type Props = {
 
 export default function ProfitForm({ onAdded }: Props) {
   const [title, setTitle] = useState("");
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<string>("");
   const [category, setCategory] = useState("other");
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Convert string → number
+    const numAmount = Number(amount);
+    if (isNaN(numAmount) || numAmount <= 0) {
+      alert("Amount must be greater than 0");
+      return;
+    }
     try {
       setSubmitting(true);
       await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/profits`, {
         method: "POST",
-        body: JSON.stringify({ title, amount, category }),
+        body: JSON.stringify({ title, amount: numAmount, category }),
       });
       setTitle("");
-      setAmount(0);
+      setAmount("");
       setCategory("other");
       onAdded();
     } catch (err: any) {
@@ -33,10 +39,7 @@ export default function ProfitForm({ onAdded }: Props) {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="mb-4"
-    >
+    <form onSubmit={handleSubmit} className="mb-4">
       <h3 className="font-semibold text-gray-100 mb-3 text-sm uppercase tracking-wide">
         Add Profit
       </h3>
@@ -55,12 +58,15 @@ export default function ProfitForm({ onAdded }: Props) {
           <input
             type="number"
             placeholder="Amount"
-            value={amount || ""}
-            onChange={(e) => setAmount(Number(e.target.value))}
-            required
-            className="w-32 border border-gray-700 bg-gray-950 text-gray-100 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            step="0.01"
+            min="0"
+            className="w-32 border border-gray-700 bg-gray-950 text-gray-100 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600
+             [appearance:textfield] 
+    [&::-webkit-inner-spin-button]:appearance-none
+    [&::-webkit-outer-spin-button]:appearance-none"
           />
-
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -71,8 +77,6 @@ export default function ProfitForm({ onAdded }: Props) {
             <option value="investment">Investment</option>
             <option value="gift">Gift</option>
             <option value="other_profit">Other</option>
-
-
           </select>
         </div>
 

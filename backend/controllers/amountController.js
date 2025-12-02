@@ -10,7 +10,7 @@ exports.createAmount = async (req, res) => {
     if (req.user._id.toString() !== userId)
       return res.status(403).json({ message: "Access denied" });
 
-    const { category, amount, note, date, type } = req.body;
+    const { category, amount, method, note, date, type } = req.body;
     if (!category || amount == null)
       return res
         .status(400)
@@ -20,6 +20,7 @@ exports.createAmount = async (req, res) => {
       user: userId,
       category,
       amount,
+      method,
       note,
       date,
       type,

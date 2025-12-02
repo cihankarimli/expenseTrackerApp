@@ -32,6 +32,11 @@ const amountSchema = new mongoose.Schema(
       trim: true,
       maxlength: 500,
     },
+    method: {
+      type: String,
+      trim: true,
+      enum: ["cash", "credit card", "debit card", "online payment", "other"],
+    },
     date: {
       type: Date,
       default: Date.now,
