@@ -5,11 +5,12 @@ import ModernPieChart from "./charts/ModernPieChart";
 import ModernBarChart from "./charts/ModernBarChart";
 import { profitIcons } from "../utils/profitIcons";
 
-
 interface ProfitChartsProps {
   profits: { category: string; amount: number }[];
 }
-export default function ProfitCharts({ profits }): ProfitChartsProps {
+
+// ✅ DÜZGÜN: Props tipini belə yazın
+export default function ProfitCharts({ profits }: ProfitChartsProps) {
   const [type, setType] = useState("pie");
 
   const labels = [...new Set(profits.map((p) => p.category))];
@@ -32,7 +33,12 @@ export default function ProfitCharts({ profits }): ProfitChartsProps {
       </div>
 
       {type === "pie" ? (
-        <ModernPieChart labels={labels} values={values} icons={icons} defaultText="Income" />
+        <ModernPieChart
+          labels={labels}
+          values={values}
+          icons={icons}
+          defaultText="Income"
+        />
       ) : (
         <ModernBarChart labels={labels} values={values} />
       )}
