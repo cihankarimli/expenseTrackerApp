@@ -3,46 +3,45 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { validationResult } = require("express-validator");
 
-// Helper functions
 const generateToken = (userId) => {
   if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET not configured");
+    console.error("JWT_SECRET is missing");
+    return null;
   }
-  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
+  return jwt.sign({ userId }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
 };
 
-const handleValidationErrors = (req) => {
+const handleValidationErrors = (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw { status: 400, errors: errors.array() };
+    res.status(400).json({
+      success: false,
+      errors: errors.array(),
+    });
+    return true;
   }
+  return false;
 };
 
-// Controller methods
 const register = async (req, res) => {
   try {
-    handleValidationErrors(req);
+    if (handleValidationErrors(req, res)) return;
+
     const { username, email, password } = req.body;
 
-    // Check existing user
     const existingUser = await User.findOne({
-      $or: [
-        { email: email.toLowerCase() },
-        { username: { $regex: new RegExp(`^${username}$`, "i") } },
-      ],
+      $or: [{ email: email.toLowerCase() }, { username }],
     });
 
     if (existingUser) {
-      throw {
-        status: 400,
-        message:
-          existingUser.email === email.toLowerCase()
-            ? "Email already registered"
-            : "Username already taken",
-      };
+      return res.status(400).json({
+        success: false,
+        message: "Email or username already exists",
+      });
     }
 
-    // Create new user
     const hashedPassword = await bcrypt.hash(password, 12);
     const newUser = await User.create({
       username: username.trim(),
@@ -51,34 +50,43 @@ const register = async (req, res) => {
     });
 
     const token = generateToken(newUser._id);
-    const userData = newUser.toJSON();
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: "Registration successful",
       token,
-      user: userData,
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+      },
     });
   } catch (error) {
-    const status = error.status || 500;
-    const message = status === 500 ? "Server error occurred" : error.message;
-
-    res.status(status).json({
-      success: false,
-      message,
-      errors: error.errors,
-      ...(process.env.NODE_ENV === "development" && { debug: error.message }),
-    });
+    console.error("Register error:", error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: "Server error",
+      });
+    }
   }
 };
 
 const login = async (req, res) => {
   try {
-    handleValidationErrors(req);
-    const { email, password } = req.body;
-    const user = await User.findOne({ email: email.toLowerCase() });
+    if (handleValidationErrors(req, res)) return;
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res.status(401).json({
         success: false,
         message: "Invalid email or password",
@@ -86,9 +94,15 @@ const login = async (req, res) => {
     }
 
     const token = generateToken(user._id);
-    res.json({
+    if (!token) {
+      return res.status(500).json({
+        success: false,
+        message: "Token generation failed",
+      });
+    }
+
+    return res.json({
       success: true,
-      message: "Login successful",
       token,
       user: {
         id: user._id,
@@ -98,27 +112,29 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error occurred",
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: "Server error",
+      });
+    }
   }
 };
 
 const getCurrentUser = async (req, res) => {
   try {
-    const token = req.headers.authorization?.replace("Bearer ", "");
-    if (!token) {
+    const auth = req.headers.authorization;
+    if (!auth || !auth.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
-        message: "Token not found",
+        message: "No token provided",
       });
     }
 
+    const token = auth.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select("-password");
 
+    const user = await User.findById(decoded.userId).select("-password");
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -126,33 +142,15 @@ const getCurrentUser = async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
-      user: {
-        id: user._id,
-        username: user.username,
-
-        email: user.email,
-        createdAt: user.createdAt,
-      },
+      user,
     });
   } catch (error) {
-    if (error.name === "JsonWebTokenError") {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid token",
-      });
-    }
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({
-        success: false,
-        message: "Token has expired",
-      });
-    }
-
-    res.status(500).json({
+    console.error("Get current user error:", error);
+    return res.status(401).json({
       success: false,
-      message: "Server error",
+      message: "Invalid or expired token",
     });
   }
 };
