@@ -24,16 +24,15 @@ export default function ProfitList({ profits, onDeleted }: Props) {
       listRef.current.scrollTo({ top: 0, behavior: "instant" });
     }
   }, [profits]);
+
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  /** Open modal */
   const handleDeleteClick = (id: string) => {
     setSelectedId(id);
     setModalOpen(true);
   };
 
-  /** Confirm delete */
   const confirmDelete = async () => {
     if (!selectedId) return;
     try {
@@ -51,7 +50,7 @@ export default function ProfitList({ profits, onDeleted }: Props) {
     }
   };
 
-  const cencelDelete = () => {
+  const cancelDelete = () => {
     setModalOpen(false);
     setSelectedId(null);
   };
@@ -67,8 +66,16 @@ export default function ProfitList({ profits, onDeleted }: Props) {
             key={p._id}
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.15 }}
-            className="p-4 border border-gray-800 rounded-xl bg-gray-900/70 flex flex-col gap-3"
+            transition={{ duration: 0.2 }}
+            className="
+              p-4 rounded-2xl 
+              bg-[#1a1d23]/70 
+              border border-[#2a2f38]
+              shadow-[0_0_12px_rgba(0,0,0,0.35)]
+              backdrop-blur-lg
+              flex flex-col gap-3
+              transition hover:scale-[1.01]
+            "
           >
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3">
@@ -99,21 +106,20 @@ export default function ProfitList({ profits, onDeleted }: Props) {
               </p>
             )}
 
-            <div className="flex justify-end">
-              <button
-                onClick={() => handleDeleteClick(p._id)}
-                className="text-red-400 hover:text-red-300 hover:underline text-xs"
-              >
-                Delete
-              </button>
-            </div>
+            <button
+              onClick={() => handleDeleteClick(p._id)}
+              className="text-red-400 hover:text-red-300 hover:underline text-xs mt-2 self-end"
+            >
+              Delete
+            </button>
           </motion.li>
         ))}
       </ul>
+
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-gray-900 p-6 rounded-xl border border-gray-700 w-[300px] text-center shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-100 mb-3">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50">
+          <div className="bg-[#13161b] w-[320px] p-6 rounded-2xl border border-[#2a2f38] shadow-[0_0_24px_rgba(0,0,0,0.35)] text-center">
+            <h3 className="text-lg font-semibold text-gray-100 mb-2">
               Delete Profit?
             </h3>
 
@@ -123,15 +129,15 @@ export default function ProfitList({ profits, onDeleted }: Props) {
 
             <div className="flex justify-center gap-3">
               <button
-                onClick={cencelDelete}
-                className="px-4 py-2 rounded-lg bg-gray-700 text-gray-200 hover:bg-gray-600"
+                onClick={cancelDelete}
+                className="px-4 py-2 rounded-xl bg-[#1f242d] text-gray-200 hover:bg-[#262b34]"
               >
                 Cancel
               </button>
 
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+                className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700"
               >
                 Delete
               </button>

@@ -57,29 +57,25 @@ export default function AmountsPage() {
     <PageFade>
       <div className="max-w-6xl mx-auto p-6">
         <Card className="mb-6">
-          <div className="flex justify-between items-center gap-4 flex-wrap">
+          <div className="flex justify-between items-center flex-wrap gap-4">
             <div>
-              <h1
-                className="font-bold text-white"
-                style={{ fontSize: "clamp(1.35rem, 2.7vw, 1.75rem)" }}
-              >
-                Expenses
-              </h1>
+              <h1 className="text-3xl font-bold text-white">Expenses</h1>
               <p className="text-gray-400 text-sm mt-1">
-                Track and analyze your spendings by category and time range.
+                Track and analyze your spendings
               </p>
             </div>
+
             <div className="text-right">
-              <p className="text-xs uppercase text-gray-400 tracking-wide">
-                Total Expenses (Filtered)
+              <p className="text-[11px] uppercase text-gray-500 tracking-wide">
+                Total Expenses
               </p>
-              <p className="text-2xl font-semibold text-red-400">
+              <p className="text-3xl font-semibold text-red-400">
                 {totalExpenses}₼
               </p>
             </div>
           </div>
 
-          <div className="mt-4 position-relative ">
+          <div className="mt-4">
             <DateRangePicker
               startDate={startDate}
               endDate={endDate}
@@ -99,23 +95,22 @@ export default function AmountsPage() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left: Form + List */}
             <Card>
               <AmountForm userId={userId} onAdded={fetchAmounts} />
               <AmountList amounts={filteredAmounts} onDeleted={fetchAmounts} />
             </Card>
 
-            {/* Right: Stats + Chart */}
             <Card>
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex justify-between items-center mb-4">
                 <div>
                   <h2 className="text-lg font-bold text-gray-100">
                     Category Stats
                   </h2>
                   <p className="text-xs text-gray-400">
-                    Visual breakdown of your spending.
+                    Visual breakdown of your expenses
                   </p>
                 </div>
+
                 <div className="text-right text-sm text-gray-300">
                   <p>
                     Total:{" "}

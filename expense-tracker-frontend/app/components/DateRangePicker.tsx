@@ -9,12 +9,17 @@ interface DateRangePickerProps {
   endDate: Date;
   onChange: (start: Date, end: Date) => void;
 }
-export default function DateRangePicker({ startDate, endDate, onChange }: DateRangePickerProps) {
+
+export default function DateRangePicker({
+  startDate,
+  endDate,
+  onChange,
+}: DateRangePickerProps) {
   const [localStart, setLocalStart] = useState(startDate);
   const [localEnd, setLocalEnd] = useState(endDate);
 
   return (
-    <div className="bg-gray-800 p-4 rounded-lg shadow-sm mb-6 flex flex-wrap gap-3 items-center text-gray-100 relative">
+    <div className="bg-gray-900 p-4 rounded-lg shadow-sm mb-6 flex flex-wrap gap-3 items-center text-gray-100 relative">
       {/* GLOBAL FIXES — DO NOT REMOVE */}
       <style jsx global>{`
         .react-datepicker {
@@ -37,17 +42,18 @@ export default function DateRangePicker({ startDate, endDate, onChange }: DateRa
         <DatePicker
           selected={localStart}
           onChange={(date) => {
-            setLocalStart(date);
-            onChange(date, localEnd);
+            if (date) {
+              // ← NULL CHECK
+              setLocalStart(date);
+              onChange(date, localEnd);
+            }
           }}
           selectsStart
           startDate={localStart}
           endDate={localEnd}
           portalId="datepicker-root"
           popperPlacement="bottom-start"
-          popperModifiers={[
-           
-          ]}
+          popperModifiers={[]}
           className="border border-gray-600 bg-gray-900 text-gray-100 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-700"
         />
       </div>
@@ -61,8 +67,11 @@ export default function DateRangePicker({ startDate, endDate, onChange }: DateRa
         <DatePicker
           selected={localEnd}
           onChange={(date) => {
-            setLocalEnd(date);
-            onChange(localStart, date);
+            if (date) {
+              // ← NULL CHECK
+              setLocalEnd(date);
+              onChange(localStart, date);
+            }
           }}
           selectsEnd
           startDate={localStart}
@@ -70,8 +79,7 @@ export default function DateRangePicker({ startDate, endDate, onChange }: DateRa
           minDate={localStart}
           portalId="datepicker-root"
           popperPlacement="bottom-start"
-          popperModifiers={[
-          ]}
+          popperModifiers={[]}
           className="border border-gray-600 bg-gray-900 text-gray-100 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-700"
         />
       </div>

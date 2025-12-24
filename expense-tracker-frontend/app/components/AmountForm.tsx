@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { fetchWithAuth } from "../utils/auth";
+import Button from "./UI/Button";
 
 type Props = {
   userId: string;
@@ -134,13 +135,9 @@ export default function AmountForm({ userId, onAdded }: Props) {
 
         {error && <p className="text-red-400 text-sm">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white py-2.5 px-4 rounded-full text-sm font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
-        >
-          {submitting ? "Saving..." : "Add Amount"}
-        </button>
+        <Button type="submit" className=" w-full">
+          Add Amount
+        </Button>
       </div>
     </form>
   );

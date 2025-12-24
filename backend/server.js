@@ -59,8 +59,9 @@ mongoose
 const authRoutes = require("./routes/user");
 const amountRoutes = require("./routes/amountRoutes");
 const profitRoutes = require("./routes/profitRoutes");
+const usersRoutes = require("./routes/user");
+app.use("/users", usersRoutes);
 app.use("/profits", profitRoutes);
-
 app.use("/auth", authRoutes);
 app.use("/amounts", amountRoutes);
 // Test route
@@ -77,6 +78,7 @@ app.get("/", (req, res) => {
       auth: "/auth",
       amounts: "/amounts",
       profits: "/profits",
+      users: "/users",
     },
   });
 });

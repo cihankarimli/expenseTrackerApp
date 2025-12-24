@@ -11,8 +11,8 @@ import { registerChartTheme } from "../utils/chartTheme";
 registerChartTheme();
 
 export default function DashboardPage() {
-  const [amounts, setAmounts] = useState([]);
-  const [profits, setProfits] = useState([]);
+  const [amounts, setAmounts] = useState<any[]>([]);
+  const [profits, setProfits] = useState<any[]>([]);
   const [userId, setUserId] = useState("");
 
   const [startDate, setStartDate] = useState(new Date());
@@ -22,49 +22,55 @@ export default function DashboardPage() {
     const userData = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/auth/me`
     );
-
     setUserId(userData.user.id);
 
-    const amountsData = await fetchWithAuth(
+    const a = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/amounts/users/${userData.user.id}/amounts`
     );
-    const profitsData = await fetchWithAuth(
-      `${process.env.NEXT_PUBLIC_API_URL}/profits`
-    );
+    const p = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/profits`);
 
-    setAmounts(amountsData);
-    setProfits(profitsData);
+    setAmounts(a);
+    setProfits(p);
   };
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  const filterByDate = (data: any[]) =>
-    data.filter((item) => {
-      const d = new Date(item.date);
+  const filterByDate = (arr: any[]) =>
+    arr.filter((i) => {
+      const d = new Date(i.date);
       return d >= startDate && d <= endDate;
     });
 
-  const filteredAmounts = filterByDate(amounts);
-  const filteredProfits = filterByDate(profits);
+  const fA = filterByDate(amounts);
+  const fP = filterByDate(profits);
 
-  const totalExpenses = filteredAmounts
-    .filter((a) => a.type === "expense")
-    .reduce((s, a) => s + a.amount, 0);
+  const totalExpenses = fA
+    .filter((i) => i.type === "expense")
+    .reduce((s, i) => s + i.amount, 0);
 
-  const totalIncome = filteredProfits.reduce((s, p) => s + p.amount, 0);
-  const benifit=totalIncome - totalExpenses;
+  const totalIncome = fP.reduce((s, i) => s + i.amount, 0);
+
+  const benefit = (totalIncome - totalExpenses).toFixed(2);
 
   return (
     <PageFade>
       <div className="max-w-6xl mx-auto p-6">
         <Card className="mb-6">
-          <h1 className="text-2xl font-bold text-white mb-1">Dashboard</h1>
-          <p className="text-gray-400 text-sm">
+          <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+
+          <p className="text-sm text-gray-400 mt-1">
             {startDate.toDateString()} — {endDate.toDateString()}
           </p>
-          <strong className={benifit>=0?"text-green-400":"text-red-400"}> Net Benifit: {benifit}₼</strong>
+
+          <p
+            className={`mt-2 font-bold text-lg ${
+              benefit >= "0" ? "text-green-400" : "text-red-400"
+            }`}
+          >
+            Net Benefit: {benefit}₼
+          </p>
         </Card>
 
         <DateRangePicker
@@ -76,7 +82,7 @@ export default function DashboardPage() {
           }}
         />
 
-        <Card>
+        <Card className="mt-6">
           <DashboardCharts
             totalIncome={totalIncome}
             totalExpenses={totalExpenses}
@@ -87,6 +93,7 @@ export default function DashboardPage() {
               Total Expenses:{" "}
               <strong className="text-red-400">{totalExpenses}₼</strong>
             </span>
+
             <span>
               Total Income:{" "}
               <strong className="text-green-400">{totalIncome}₼</strong>
